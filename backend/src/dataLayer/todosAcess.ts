@@ -1,21 +1,17 @@
 import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
 import { TodoUpdate } from '../models/TodoUpdate';
 
+const logger = createLogger('TodosAccess')
+const AWSXRay = require('aws-xray-sdk');
 const XAWS = AWSXRay.captureAWS(AWS)
 
-const logger = createLogger('TodosAccess')
-
-// TODO: Implement the dataLayer logic
-
-const XAWS = AWSXRay.captureAWS(AWS);
 export class TodosAccess {
   constructor(private readonly docClient: DocumentClient = createDynamoDBClient(),private readonly s3 = new XAWS.S3({signatureVersion: 'v4'}),
-    private readonly todoTable = process.env.TODO_TABLE,
-    private readonly dueDateIndex = process.env.TODO_CREATED_AT_INDEX,
+    private readonly todoTable = process.env.TODOS_TABLE,
+    private readonly dueDateIndex = process.env.TODOS_CREATED_AT_INDEX,
     private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
     private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION) {
   }
@@ -56,7 +52,6 @@ export class TodosAccess {
       ExpressionAttributeValues: {
         ':name': todoUpdate.name,
         ':dueDate': todoUpdate.dueDate,
-        ':priority': todoUpdate.priority,
         ':done': todoUpdate.done,
       },
       ReturnValues: 'UPDATED_NEW'
