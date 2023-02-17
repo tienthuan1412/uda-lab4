@@ -1,6 +1,6 @@
+org: thuanbt1412
 # TODO: Change the name of the org 
-org: thuanbui1412
-app: serverless-todo-app
+app: thuanbui1412
 service: serverless-todo-app
 
 plugins:
@@ -25,7 +25,7 @@ provider:
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-thuanbt2-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   logs:
@@ -57,7 +57,7 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
-  iamRoleStatementsName: custom-role-name-GetTodo
+  # iamRoleStatementsName: custom-role-name-GetTodo
     iamRoleStatements:
       - Effect: 'Allow'
         Action:
@@ -68,7 +68,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}/index/${self:provider.environment.TODO_CREATED_AT_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
@@ -85,7 +85,7 @@ functions:
           request:
             schemas:
               application/json: ${file(models/create-todo-model.json)}
-    iamRoleStatementsName: custom-role-name-CreateTodo
+    # iamRoleStatementsName: custom-role-name-CreateTodo
     iamRoleStatements:
       - Effect: 'Allow'
         Action:
@@ -96,7 +96,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
@@ -106,6 +106,7 @@ functions:
       - http:
           method: patch
           path: todos/{todoId}
+          cors: true
     iamRoleStatementsName: custom-role-name-UpdateTodo
     iamRoleStatements:
       - Effect: 'Allow' # xray permissions (required)
@@ -118,7 +119,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
@@ -128,7 +129,8 @@ functions:
       - http:
           method: delete
           path: todos/{todoId}
-    iamRoleStatementsName: custom-role-name-DeleteTodo
+          cors: true
+    # iamRoleStatementsName: custom-role-name-DeleteTodo
     iamRoleStatements:
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -140,7 +142,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 
   # TODO: Configure this function
@@ -151,7 +153,8 @@ functions:
       - http:
           method: post
           path: todos/{todoId}/attachment
-    iamRoleStatementsName: custom-role-name-GenerateUploadUrl
+          cors: true
+    # iamRoleStatementsName: custom-role-name-GenerateUploadUrl
     iamRoleStatements:
       - Effect: 'Allow'
         Action:
@@ -167,7 +170,7 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 resources:
   Resources:
@@ -203,9 +206,9 @@ resources:
           - AttributeName: todoId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODO_TABLE}
+        TableName: ${self:provider.environment.TODOS_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODO_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH

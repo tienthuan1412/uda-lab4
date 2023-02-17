@@ -1,13 +1,11 @@
-import { TodosAccess } from './todosAcess'
-import { AttachmentUtils } from './attachmentUtils';
+import * as uuid from 'uuid'
+import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
+import { TodoUpdate } from '../models/TodoUpdate';
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-import { createLogger } from '../utils/logger'
-import * as uuid from 'uuid'
+import { TodosAccess } from '../dataLayer/todosAcess';
 import { parseUserId } from '../auth/utils';
-
-// TODO: Implement businessLogic
 const logger = createLogger('todoAccess');
 const todoAccess = new TodosAccess();
 export async function createTodo(createTodoRequest: CreateTodoRequest,jwtToken: string): Promise<TodoItem> {
@@ -16,10 +14,9 @@ export async function createTodo(createTodoRequest: CreateTodoRequest,jwtToken: 
   const IdOfItem = uuid.v4();
   return await todoAccess.createTodo({
     userId: userOfId,
-    TodoId: IdOfItem,
+    todoId: IdOfItem,
     name: createTodoRequest.name,
     dueDate: createTodoRequest.dueDate,
-    priority: createTodoRequest.priority,
     done: false,
     createdAt: new Date().toISOString()
   })
@@ -32,7 +29,6 @@ export async function updateTodo(todoId: string,updateTodoRequest: UpdateTodoReq
       name: updateTodoRequest.name,
       done: updateTodoRequest.done,
       dueDate: updateTodoRequest.dueDate,
-      priority: updateTodoRequest.priority,
     }
   )
 }
